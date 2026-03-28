@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block titulo %}Assinaturas — FinTrack{% endblock %}
+
+{% block conteudo %}
+<div class="pg-hd">
+  <div class="pg-title">Assinaturas</div>
+  <div class="pg-sub">Serviços e cobranças recorrentes</div>
+</div>
+
+<div class="toolbar">
+  <span style="font-size:13px;color:var(--text3);font-family:var(--mono)">
+    {{ assinaturas|selectattr('status','equalto','ativa')|list|length }} ativas —
+    R$ {{ '%.2f'|format(total_mensal) }}/mês
+  </span>
+  <a class="btn btn-amber" href="{{ url_for('assinatura.cadastrar') }}">+ Nova assinatura</a>
+</div>
+
+<div class="sec">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Serviço</th>
+        <th>Categoria</th>
+        <th>Ciclo</th>
+        <th>Vence dia</th>
+        <th>Status</th>
+        <th style="text-align:right">Valor</th>
+        <th style="text-align:right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in assinaturas %}
+      {% set c = s.categoria %}
+      {% set pausada = s.status == 'pausada' %}
+      <tr style="{{ 'opacity:.45' if pausada else '' }}">
+        <td>
+          <span style="display:inline-flex;align-items:center;gap:8px">
+            <span style="width:28px;height:28px;border-radius:8px;
+                         background:{{ c.cor + '18' if c else 'var(--bg3)' }};
+                         border:1px solid {{ c.cor + '30' if c else 'var(--border)' }};
+                         display:inline-flex;align-items:center;justify-content:center;font-size:13px">
+              {{ c.icone if c else '↻' }}
+            </span>
+            <span style="font-weight:500;color:var(--text0)">{{ s.nome }}</span>
+          </span>
+        </td>
+        <td style="color:var(--text2)">{{ c.nome if c else '—' }}</td>
+        <td>
+          <span class="bdg" style="background:{{ c.cor + '18' if c else 'var(--bg3)' }};color:{{ c.cor if c else 'var(--text3)' }}">
+            {{ 'Anual' if s.ciclo == 'anual' else 'Mensal' }}
+          </span>
+        </td>
+        <td style="font-family:var(--mono);color:var(--text2)">{{ s.dia_vencimento }}</td>
+        <td>
+          <span style="display:inline-flex;align-items:center;gap:5px">
+            <span class="status-dot {{ 'off' if pausada else 'on' }}"></span>
+            <span style="font-size:12px;color:{{ 'var(--text3)' if pausada else 'var(--green)' }}">
+              {{ 'Pausada' if pausada else 'Ativa' }}
+            </span>
+          </span>
+        </td>
+        <td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--text0)">
+          R$ {{ '%.2f'|format(s.valor) }}
+        </td>
+        <td style="text-align:right;white-space:nowrap">
+          <form action="{{ url_for('assinatura.alternar_status', assinatura_id=s.id) }}" method="post" style="display:inline">
+            <button type="submit" class="btn btn-ghost btn-sm">{{ 'Ativar' if pausada else 'Pausar' }}</button>
+          </form>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('assinatura.editar', assinatura_id=s.id) }}">Editar</a>
+          <form action="{{ url_for('assinatura.excluir', assinatura_id=s.id) }}" method="post" style="display:inline"
+                onsubmit="return confirm('Excluir esta assinatura?')">
+            <button type="submit" class="btn btn-danger btn-sm">✕</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="7" style="text-align:center;color:var(--text3);padding:32px">
+          Nenhuma assinatura cadastrada.
+          <a href="{{ url_for('assinatura.cadastrar') }}" style="color:var(--amber)">Adicionar →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block titulo %}{{ 'Editar' if fundo else 'Nova' }} Entrada — FinTrack{% endblock %}
+
+{% block conteudo %}
+<div class="pg-hd">
+  <div class="pg-title">{{ 'Editar entrada' if fundo else 'Registrar entrada' }}</div>
+  <div class="pg-sub">Salário, freelance, diária, bônus ou qualquer outra receita</div>
+</div>
+
+<div class="sec" style="max-width:560px">
+  <div class="sec-body">
+    <form action="{{ url_for('fundo.editar', fundo_id=fundo.id) if fundo else url_for('fundo.cadastrar') }}" method="post">
+
+      <div class="field">
+        <label class="label">Descrição *</label>
+        <input class="inp" type="text" name="descricao"
+               value="{{ fundo.descricao if fundo else '' }}"
+               placeholder="Salário de março, freela para cliente X..." required autofocus>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label class="label">Valor (R$) *</label>
+          <input class="inp" type="number" name="valor" step="0.01" min="0"
+                 value="{{ fundo.valor if fundo else '' }}"
+                 placeholder="1500.00" required>
+        </div>
+        <div class="field">
+          <label class="label">Data *</label>
+          <input class="inp" type="date" name="data"
+                 value="{{ fundo.data.strftime('%Y-%m-%d') if fundo else today }}"
+                 required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Tipo de entrada *</label>
+        <select class="sel" name="tipo">
+          <option value="salario"      {{ 'selected' if fundo and fundo.tipo == 'salario'      }}>💼 Salário</option>
+          <option value="freelance"    {{ 'selected' if fundo and fundo.tipo == 'freelance'    }}>💻 Freelance</option>
+          <option value="diaria"       {{ 'selected' if fundo and fundo.tipo == 'diaria'       }}>📅 Diária</option>
+          <option value="bonus"        {{ 'selected' if fundo and fundo.tipo == 'bonus'        }}>🎯 Bônus</option>
+          <option value="investimento" {{ 'selected' if fundo and fundo.tipo == 'investimento' }}>📈 Investimento</option>
+          <option value="presente"     {{ 'selected' if fundo and fundo.tipo == 'presente'     }}>🎁 Presente</option>
+          <option value="outro"        {{ 'selected' if fundo and fundo.tipo == 'outro'        }}>💰 Outro</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label">
+          Vincular a uma meta
+          <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(opcional)</span>
+        </label>
+        <select class="sel" name="meta_id">
+          <option value="">Sem meta vinculada</option>
+          {% for m in metas %}
+          {% set pct = (m.valor_atual / m.valor_alvo * 100)|round|int %}
+          <option value="{{ m.id }}"
+            {{ 'selected' if (fundo and fundo.meta_id == m.id) or (meta_id_pre and meta_id_pre|int == m.id) }}>
+            {{ m.nome }} ({{ pct }}%)
+          </option>
+          {% endfor %}
+        </select>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:5px">
+          Ao vincular, este valor aparece como contribuição na página de Metas.
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Notas</label>
+        <input class="inp" type="text" name="notas"
+               value="{{ fundo.notas if fundo else '' }}"
+               placeholder="Detalhes adicionais...">
+      </div>
+
+      <div class="modal-foot" style="padding-top:16px;border-top:1px solid var(--border)">
+        <a href="{{ url_for('fundo.listar') }}" class="btn btn-ghost">Cancelar</a>
+        <button type="submit" class="btn btn-amber">Registrar entrada</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block titulo %}Exportar Dados — FinTrack{% endblock %}
+
+{% block conteudo %}
+<div class="pg-hd">
+  <div class="pg-title">Exportar dados</div>
+  <div class="pg-sub">Baixe seus dados em CSV — compatível com Excel e Google Sheets</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn {% if tab == 'all' %}on{% endif %}"
+          onclick="swTab('all', this)">↓ &nbsp;Exportar tudo</button>
+  <button class="tab-btn {% if tab == 'periodo' %}on{% endif %}"
+          onclick="swTab('periodo', this)">📅 &nbsp;Exportar por período</button>
+</div>
+
+<!-- ── ABA: EXPORTAR TUDO ── -->
+<div id="tab-all" {% if tab != 'all' %}style="display:none"{% endif %}>
+  <div class="info-ban">
+    Marque os módulos desejados e escolha entre arquivos separados ou um único relatório consolidado.
+  </div>
+
+  <form action="{{ url_for('exportar.exportar_tudo') }}" method="post" id="form-tudo">
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-title">
+          <span class="sec-title-dot" style="background:var(--amber)"></span>
+          Módulos para exportar
+        </div>
+        <div style="display:flex;gap:6px">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="saAll(true)">Marcar todos</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="saAll(false)">Limpar</button>
+        </div>
+      </div>
+      <div class="sec-body">
+        {% set modulos = [
+          ('gastos',      '◉', 'Gastos',      'Despesas fixas e variáveis'),
+          ('fundos',      '⊕', 'Fundos',      'Entradas de dinheiro'),
+          ('boletos',     '▣', 'Boletos',     'Boletos e vencimentos'),
+          ('assinaturas', '↻', 'Assinaturas', 'Serviços recorrentes'),
+          ('metas',       '◎', 'Metas',       'Metas financeiras'),
+        ] %}
+        {% for id, icone, nome, desc in modulos %}
+        <div class="ckrow" onclick="togCk('{{ id }}')">
+          <div class="ckb on" id="ck-{{ id }}">✓</div>
+          <input type="checkbox" name="modulos" value="{{ id }}" checked
+                 style="display:none" id="inp-{{ id }}">
+          <span style="font-size:15px">{{ icone }}</span>
+          <span style="font-size:13px;color:var(--text1);flex:1">{{ nome }}</span>
+          <span style="font-size:11.5px;color:var(--text3)">{{ desc }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="foot-bar">
+      <span class="foot-info" id="exp-info">5 módulo(s) selecionado(s)</span>
+      <div style="display:flex;gap:8px">
+        <button type="submit" name="tipo" value="separados" class="btn btn-ghost">
+          ↓ Arquivos separados
+        </button>
+        <button type="submit" name="tipo" value="unico" class="btn btn-amber">
+          ↓ Relatório único
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- ── ABA: POR PERÍODO ── -->
+<div id="tab-periodo" {% if tab != 'periodo' %}style="display:none"{% endif %}>
+  <form action="{{ url_for('exportar.exportar_periodo') }}" method="post">
+
+    <div class="sec">
+      <div class="sec-hd">
+        <div class="sec-title">Definir período</div>
+      </div>
+      <div class="sec-body">
+
+        <!-- Atalhos rápidos -->
+        <div style="font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">
+          Atalhos rápidos
+        </div>
+        <div class="presets">
+          <button type="button" class="pr-b on"  data-preset="mes" >Este mês</button>
+          <button type="button" class="pr-b"      data-preset="30"  >Últimos 30 dias</button>
+          <button type="button" class="pr-b"      data-preset="90"  >Últimos 90 dias</button>
+          <button type="button" class="pr-b"      data-preset="ano" >Este ano</button>
+          <button type="button" class="pr-b"      data-preset="tudo">Todo o período</button>
+          <button type="button" class="pr-b pr-custom" data-preset="custom">✏ Personalizado</button>
+        </div>
+
+        <!-- Campos de data -->
+        <div class="grid2" style="margin-bottom:16px">
+          <div>
+            <label class="label"
+                   style="display:flex;align-items:center;justify-content:space-between">
+              Data inicial
+              <span id="dt-lock-dt-i"
+                    style="font-size:9.5px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:.03em">
+                🔒 Automático
+              </span>
+            </label>
+            <div style="position:relative">
+              <input type="date" id="dt-i" name="data_inicio"
+                     value="{{ hoje_ini }}" class="inp" readonly
+                     style="cursor:default;color:var(--text2);pointer-events:none">
+              <div id="dt-i-lock"
+                   style="position:absolute;inset:0;border-radius:var(--r);
+                          background:repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 8px);
+                          pointer-events:none;border:1px solid var(--border)">
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="label"
+                   style="display:flex;align-items:center;justify-content:space-between">
+              Data final
+              <span id="dt-lock-dt-f"
+                    style="font-size:9.5px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:.03em">
+                🔒 Automático
+              </span>
+            </label>
+            <div style="position:relative">
+              <input type="date" id="dt-f" name="data_fim"
+                     value="{{ hoje }}" class="inp" readonly
+                     style="cursor:default;color:var(--text2);pointer-events:none">
+              <div id="dt-f-lock"
+                   style="position:absolute;inset:0;border-radius:var(--r);
+                          background:repeating-linear-gradient(45deg,rgba(255,255,255,.015) 0px,rgba(255,255,255,.015) 1px,transparent 1px,transparent 8px);
+                          pointer-events:none;border:1px solid var(--border)">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Módulos filtrados -->
+        <div style="font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">
+          Módulos com data (filtrados pelo período)
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+          <label class="chip" style="border-color:var(--coral);background:var(--coralbg);color:var(--coral)">
+            <input type="checkbox" name="modulos" value="gastos" checked style="display:none">
+            ◉ Gastos
+          </label>
+          <label class="chip" style="border-color:var(--amber);background:var(--amberbg);color:var(--amber)">
+            <input type="checkbox" name="modulos" value="fundos" checked style="display:none">
+            ⊕ Fundos
+          </label>
+          <label class="chip" style="border-color:var(--teal);background:var(--tealbg);color:var(--teal)">
+            <input type="checkbox" name="modulos" value="boletos" checked style="display:none">
+            ▣ Boletos
+          </label>
+        </div>
+        <div style="font-size:12px;color:var(--text3)">
+          Assinaturas e metas não têm data de transação — sempre exportadas por completo.
+        </div>
+
+      </div>
+    </div>
+
+    <div class="foot-bar">
+      <span class="foot-info">Selecione o período e os módulos</span>
+      <button type="submit" class="btn btn-amber">↓ Baixar CSV do período</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function swTab(tab, btn) {
+  document.getElementById('tab-all').style.display    = tab === 'all'     ? '' : 'none';
+  document.getElementById('tab-periodo').style.display = tab === 'periodo' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+</script>
+{% endblock %}

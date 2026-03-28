@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block titulo %}Gastos — FinTrack{% endblock %}
+
+{% block conteudo %}
+<div class="pg-hd">
+  <div class="pg-title">Gastos</div>
+  <div class="pg-sub">Despesas fixas e variáveis</div>
+</div>
+
+<div class="toolbar">
+  <span style="font-size:13px;color:var(--text3);font-family:var(--mono)">
+    {{ gastos|length }} lançamentos — R$ {{ '%.2f'|format(total_mes) }} este mês
+  </span>
+  <a class="btn btn-amber" href="{{ url_for('gasto.cadastrar') }}">+ Novo gasto</a>
+</div>
+
+<div class="sec">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Descrição</th>
+        <th>Categoria</th>
+        <th>Data</th>
+        <th>Tipo</th>
+        <th style="text-align:right">Valor</th>
+        <th style="text-align:right">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in gastos %}
+      {% set c = g.categoria %}
+      <tr>
+        <td style="font-weight:500;color:var(--text0)">{{ g.descricao }}</td>
+        <td>
+          <span style="display:inline-flex;align-items:center;gap:5px">
+            <span class="dot" style="background:{{ c.cor if c else 'var(--text3)' }};box-shadow:0 0 4px {{ c.cor + '60' if c else 'transparent' }}"></span>
+            {{ c.nome if c else '—' }}
+          </span>
+        </td>
+        <td style="font-family:var(--mono);font-size:12px;color:var(--text3)">
+          {{ g.data.strftime('%d/%m/%Y') }}
+        </td>
+        <td>
+          <span class="bdg" style="background:{{ 'var(--tealbg)' if g.recorrente else 'var(--amberbg)' }};
+                                   color:{{ 'var(--teal)' if g.recorrente else 'var(--amber)' }}">
+            {{ 'Fixo' if g.recorrente else 'Variável' }}
+          </span>
+        </td>
+        <td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--text0)">
+          R$ {{ '%.2f'|format(g.valor) }}
+        </td>
+        <td style="text-align:right;white-space:nowrap">
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('gasto.editar', gasto_id=g.id) }}">Editar</a>
+          <form action="{{ url_for('gasto.excluir', gasto_id=g.id) }}" method="post" style="display:inline"
+                onsubmit="return confirm('Excluir este gasto?')">
+            <button type="submit" class="btn btn-danger btn-sm">✕</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6" style="text-align:center;color:var(--text3);padding:32px">
+          Nenhum gasto cadastrado.
+          <a href="{{ url_for('gasto.cadastrar') }}" style="color:var(--amber)">Adicionar →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTrack — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <div class="auth-brand">
+      <div class="auth-brand-logo">
+        <svg viewBox="0 0 20 20">
+          <path d="M10 2L3 7v11h14V7L10 2zm0 2.5l6 4.5v8H4V9l6-4.5zm-1 7v3h2v-3h-2zm-3 0v3h2v-3H6zm6 0v3h2v-3h-2z"/>
+        </svg>
+      </div>
+      <span class="auth-brand-name">FinTrack</span>
+    </div>
+
+    <div class="auth-headline">Bem-vindo de volta</div>
+    <div class="auth-sub">Entre para controlar suas finanças</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="auth-err">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('auth.fazer_login') }}" method="post">
+      <div class="auth-field">
+        <label class="auth-label">E-mail</label>
+        <input class="auth-inp" type="email" name="email" placeholder="seu@email.com" required autofocus>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Senha</label>
+        <input class="auth-inp" type="password" name="senha" placeholder="••••••" required>
+      </div>
+      <button type="submit" class="auth-btn">Entrar na plataforma →</button>
+    </form>
+
+    <div class="auth-footer">
+      Não tem conta?
+      <a class="auth-link" href="{{ url_for('auth.cadastrar') }}">Criar conta</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

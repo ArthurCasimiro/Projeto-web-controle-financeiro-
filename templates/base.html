@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo %}FinTrack{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sb">
+    <div class="sb-top">
+      <div class="sb-brand">
+        <div class="sb-brand-ico">
+          <svg viewBox="0 0 20 20">
+            <path d="M10 2L3 7v11h14V7L10 2zm0 2.5l6 4.5v8H4V9l6-4.5zm-1 7v3h2v-3h-2zm-3 0v3h2v-3H6zm6 0v3h2v-3h-2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sb-brand-name">FinTrack</div>
+          <div class="sb-brand-tag">Plataforma financeira</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-nav">
+      <div class="sb-sec">Principal</div>
+
+      <a class="sb-item {% if request.blueprint == 'dashboard' %}on{% endif %}"
+         data-page="dashboard" href="{{ url_for('dashboard.painel') }}">
+        <span class="sb-item-icon">◈</span> Dashboard
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'categoria' %}on{% endif %}"
+         data-page="categorias" href="{{ url_for('categoria.listar') }}">
+        <span class="sb-item-icon">◆</span> Categorias
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'assinatura' %}on{% endif %}"
+         data-page="assinaturas" href="{{ url_for('assinatura.listar') }}">
+        <span class="sb-item-icon">↻</span> Assinaturas
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'gasto' %}on{% endif %}"
+         data-page="gastos" href="{{ url_for('gasto.listar') }}">
+        <span class="sb-item-icon">◉</span> Gastos
+      </a>
+
+      <div class="sb-sec">Planejamento</div>
+
+      <a class="sb-item {% if request.blueprint == 'fundo' %}on{% endif %}"
+         data-page="fundos" href="{{ url_for('fundo.listar') }}">
+        <span class="sb-item-icon">⊕</span> Fundos
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'boleto' %}on{% endif %}"
+         data-page="boletos" href="{{ url_for('boleto.listar') }}">
+        <span class="sb-item-icon">▣</span> Boletos
+        {% set qtd_boletos_urgentes = boletos_urgentes|default(0) %}
+        {% if qtd_boletos_urgentes > 0 %}
+          <span class="sb-badge">{{ qtd_boletos_urgentes }}</span>
+        {% endif %}
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'meta' %}on{% endif %}"
+         data-page="metas" href="{{ url_for('meta.listar') }}">
+        <span class="sb-item-icon">◎</span> Metas
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'alerta' %}on{% endif %}"
+         data-page="alertas" href="{{ url_for('alerta.listar') }}">
+        <span class="sb-item-icon">◌</span> Alertas
+        {% set qtd_alertas = total_alertas|default(0) %}
+        {% if qtd_alertas > 0 %}
+          <span class="sb-badge">{{ qtd_alertas }}</span>
+        {% endif %}
+      </a>
+
+      <a class="sb-item {% if request.blueprint == 'exportar' %}on{% endif %}"
+         data-page="exportar" href="{{ url_for('exportar.index') }}">
+        <span class="sb-item-icon">↓</span> Exportar dados
+      </a>
+    </div>
+
+    <!-- Usuário logado -->
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="sb-av">{{ session.usuario_nome[:2].upper() }}</div>
+        <div style="flex:1;min-width:0">
+          <div class="sb-uname">{{ session.usuario_nome }}</div>
+          <div class="sb-uemail">{{ session.usuario_email | default('') }}</div>
+        </div>
+        <a class="sb-logout" href="{{ url_for('auth.logout') }}" title="Sair">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block conteudo %}{% endblock %}
+
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

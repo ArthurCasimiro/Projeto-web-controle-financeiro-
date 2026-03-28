@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block titulo %}Dashboard — FinTrack{% endblock %}
+
+{% block conteudo %}
+<div class="pg-hd">
+  <div class="pg-title">Dashboard</div>
+  <div class="pg-sub">{{ now.strftime('%A, %d de %B de %Y') }}</div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stats">
+  <div class="stat amber d1">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Entradas este mês</div>
+    <div class="stat-val">R$ {{ '%.2f'|format(total_entradas) }}</div>
+    <div class="stat-note">{{ qtd_fundos }} registros</div>
+  </div>
+  <div class="stat red d2">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Boletos em aberto</div>
+    <div class="stat-val">R$ {{ '%.2f'|format(total_boletos) }}</div>
+    <div class="stat-note">{{ qtd_boletos_pendentes }} pendentes</div>
+  </div>
+  <div class="stat teal d3">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Assinaturas /mês</div>
+    <div class="stat-val">R$ {{ '%.2f'|format(total_assinaturas) }}</div>
+    <div class="stat-note">{{ qtd_assinaturas_ativas }} ativas</div>
+  </div>
+  <div class="stat {{ 'green' if saldo >= 0 else 'red' }} d4">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Saldo estimado</div>
+    <div class="stat-val" style="color:var(--{{ 'green' if saldo >= 0 else 'red' }})">
+      R$ {{ '%.2f'|format(saldo|abs) }}
+    </div>
+    <div class="stat-note">{{ 'Positivo ↑' if saldo >= 0 else 'Negativo ↓' }}</div>
+  </div>
+</div>
+
+<!-- LINHA 2: Boletos urgentes + Gráfico -->
+<div class="row2">
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title">
+        <span class="sec-title-dot" style="background:var(--amber)"></span>
+        Boletos urgentes
+      </div>
+      <a class="sec-link" href="{{ url_for('boleto.listar') }}">Ver todos →</a>
+    </div>
+    <div class="sec-body">
+      {% if boletos_urgentes %}
+        {% for b in boletos_urgentes[:4] %}
+          {% set d = (b.vencimento - today).days %}
+          {% if d < 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Vencido' %}
+          {% elif d == 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Hoje!' %}
+          {% elif d <= 3 %}{% set cor = 'var(--coral)' %}{% set lb = d|string + ' dia(s)' %}
+          {% elif d <= 7 %}{% set cor = 'var(--amber)' %}{% set lb = d|string + ' dias' %}
+          {% else %}{% set cor = 'var(--teal)' %}{% set lb = d|string + ' dias' %}{% endif %}
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+            <div class="status-dot" style="background:{{ cor }};box-shadow:0 0 6px {{ cor }}40;flex-shrink:0"></div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;color:var(--text0)">{{ b.nome }}</div>
+              <div style="font-size:11px;color:var(--text3)">{{ b.vencimento.strftime('%d/%m/%Y') }}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:var(--mono);font-size:13px;font-weight:600">R$ {{ '%.2f'|format(b.valor) }}</div>
+              <div style="font-size:10.5px;font-weight:600;color:{{ cor }}">{{ lb }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="info-ban teal">✓ Nenhum boleto urgente nos próximos 7 dias.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title">
+        <span class="sec-title-dot" style="background:var(--teal)"></span>
+        Distribuição de saídas
+      </div>
+    </div>
+    <div class="sec-body" style="padding-top:12px">
+      <div style="position:relative;height:190px">
+        <canvas id="chartDashboard"
+          data-labels='{{ chart_labels|tojson }}'
+          data-values='{{ chart_values|tojson }}'
+          data-colors='{{ chart_colors|tojson }}'></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LINHA 3: Alertas + Últimas entradas -->
+<div class="row2">
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title">
+        <span class="sec-title-dot" style="background:var(--red)"></span>
+        Alertas ativos
+      </div>
+      <a class="sec-link" href="{{ url_for('alerta.listar') }}">Central de alertas →</a>
+    </div>
+    <div class="sec-body">
+      {% if alertas %}
+        {% for a in alertas[:4] %}
+          {% if a.tipo == 'boleto' %}
+            {% set b = a.obj %}
+            {% set d = (b.vencimento - today).days %}
+            {% if d < 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Vencido' %}
+            {% elif d == 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Hoje!' %}
+            {% elif d <= 3 %}{% set cor = 'var(--coral)' %}{% set lb = d|string + ' dia(s)' %}
+            {% else %}{% set cor = 'var(--amber)' %}{% set lb = d|string + ' dias' %}{% endif %}
+            <div class="alert-row" style="background:rgba(248,113,113,.05);border-left-color:{{ cor }}">
+              <div style="font-size:18px">▣</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:500;color:var(--text0)">
+                  {{ b.nome }}
+                  <span class="bdg" style="background:var(--amberbg);color:var(--amber)">Boleto</span>
+                </div>
+                <div style="font-size:11px;color:var(--text3)">Vence {{ b.vencimento.strftime('%d/%m/%Y') }}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:var(--mono);font-size:13px;font-weight:600">R$ {{ '%.2f'|format(b.valor) }}</div>
+                <div style="font-size:10.5px;font-weight:600;color:{{ cor }}">{{ lb }}</div>
+              </div>
+            </div>
+          {% else %}
+            {% set s = a.obj %}
+            <div class="alert-row" style="background:rgba(232,168,56,.05);border-left-color:var(--amber)">
+              <div style="font-size:18px">{{ s.categoria.icone if s.categoria else '↻' }}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:500;color:var(--text0)">
+                  {{ s.nome }}
+                  <span class="bdg" style="background:var(--purplebg);color:var(--purple)">Assinatura</span>
+                </div>
+                <div style="font-size:11px;color:var(--text3)">Dia {{ s.dia_vencimento }}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-family:var(--mono);font-size:13px;font-weight:600">R$ {{ '%.2f'|format(s.valor) }}</div>
+                <div style="font-size:10.5px;font-weight:600;color:var(--amber)">{{ a.dias }} dia(s)</div>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <div class="info-ban teal">✓ Nenhum vencimento nos próximos 7 dias.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">
+      <div class="sec-title">
+        <span class="sec-title-dot" style="background:var(--green)"></span>
+        Últimas entradas
+      </div>
+      <a class="sec-link" href="{{ url_for('fundo.listar') }}">Ver todas →</a>
+    </div>
+    <div class="sec-body" style="padding:0">
+      <table class="tbl">
+        <thead><tr><th>Descrição</th><th>Tipo</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>
+          {% for f in fundos_recentes %}
+          <tr>
+            <td style="font-weight:500;color:var(--text0)">{{ f.descricao }}</td>
+            <td><span class="tipo-pill" style="background:var(--tealbg);color:var(--teal)">{{ f.tipo }}</span></td>
+            <td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--green)">+R$ {{ '%.2f'|format(f.valor) }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="3" style="text-align:center;color:var(--text3);padding:20px">Nenhuma entrada registrada.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

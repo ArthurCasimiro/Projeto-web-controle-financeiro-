@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block titulo %}Boletos — FinTrack{% endblock %}
+
+{% block conteudo %}
+<div class="pg-hd">
+  <div class="pg-title">Boletos</div>
+  <div class="pg-sub">Gerencie boletos com alertas automáticos de vencimento</div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat red d1">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Em aberto</div>
+    <div class="stat-val">R$ {{ '%.2f'|format(total_aberto) }}</div>
+    <div class="stat-note">{{ qtd_pendentes }} pendentes</div>
+  </div>
+  <div class="stat amber d2">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Urgentes ≤7 dias</div>
+    <div class="stat-val" style="{{ 'color:var(--amber)' if qtd_urgentes > 0 else '' }}">{{ qtd_urgentes }}</div>
+    {% if qtd_urgentes > 0 %}<div class="stat-note">R$ {{ '%.2f'|format(total_urgentes) }}</div>{% endif %}
+  </div>
+  <div class="stat red d3">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Vencidos</div>
+    <div class="stat-val" style="{{ 'color:var(--red)' if qtd_vencidos > 0 else '' }}">{{ qtd_vencidos }}</div>
+  </div>
+  <div class="stat green d4">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Pagos</div>
+    <div class="stat-val" style="color:var(--green)">{{ qtd_pagos }}</div>
+    <div class="stat-note">R$ {{ '%.2f'|format(total_pago) }}</div>
+  </div>
+</div>
+
+<!-- Banner vencidos -->
+{% if vencidos %}
+<div class="venc-ban">
+  <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px">
+    ⚠ {{ vencidos|length }} boleto(s) vencido(s) — atenção às multas!
+  </div>
+  {% for b in vencidos %}
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(248,113,113,.1)">
+    <span style="font-size:13px;font-weight:500;color:var(--text0)">{{ b.nome }}</span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:11px;color:var(--red)">{{ ((today - b.vencimento).days)|abs }} dia(s) atrás</span>
+      <span style="font-family:var(--mono);font-weight:600">R$ {{ '%.2f'|format(b.valor) }}</span>
+      <form action="{{ url_for('boleto.pagar', boleto_id=b.id) }}" method="post" style="display:inline">
+        <button type="submit" class="btn btn-success btn-sm">Marcar como pago</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="toolbar">
+  <span style="font-size:13px;color:var(--text3);font-family:var(--mono)">{{ boletos|length }} boletos</span>
+  <a class="btn btn-amber" href="{{ url_for('boleto.cadastrar') }}">+ Novo boleto</a>
+</div>
+
+<!-- Boletos pendentes não vencidos -->
+{% for b in pendentes %}
+{% set d = (b.vencimento - today).days %}
+{% if d < 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Vencido' %}
+{% elif d == 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Hoje!' %}
+{% elif d <= 3 %}{% set cor = 'var(--coral)' %}{% set lb = d|string + ' dia(s)' %}
+{% elif d <= 7 %}{% set cor = 'var(--amber)' %}{% set lb = d|string + ' dias' %}
+{% else %}{% set cor = 'var(--teal)' %}{% set lb = d|string + ' dias' %}{% endif %}
+{% set c = b.categoria %}
+
+<div class="bol-card">
+  <div class="bol-stripe" style="background:{{ cor }}"></div>
+  <div class="bol-body">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+      <div>
+        <div class="bol-name">{{ b.nome }}</div>
+        <div class="bol-desc">
+          {% if b.descricao %}{{ b.descricao }}{% endif %}
+          {% if c %} · {{ c.icone }} {{ c.nome }}{% endif %}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="bol-val">R$ {{ '%.2f'|format(b.valor) }}</div>
+        <div class="bol-vence" style="color:{{ cor }}">Vence {{ b.vencimento.strftime('%d/%m/%Y') }}</div>
+      </div>
+    </div>
+
+    {% if b.notas %}
+    <div style="font-size:12px;color:var(--text3);margin-bottom:8px">{{ b.notas }}</div>
+    {% endif %}
+
+    {% if b.codigo_barra %}
+    <div class="bol-cod">
+      {{ b.codigo_barra }}
+      <button type="button" class="btn btn-ghost btn-sm btn-copy-cod"
+              data-cod="{{ b.codigo_barra }}"
+              style="margin-left:8px;float:right">Copiar</button>
+    </div>
+    {% endif %}
+
+    <div class="bol-foot">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="bdg" style="background:{{ cor }}18;color:{{ cor }}">{{ lb }}</span>
+        {% if d >= 0 and d <= 10 %}
+        <div style="width:80px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden">
+          <div style="width:{{ ((1 - d/10)*100)|round|int }}%;height:100%;background:{{ cor }}"></div>
+        </div>
+        {% endif %}
+      </div>
+      <div style="display:flex;gap:6px">
+        <form action="{{ url_for('boleto.pagar', boleto_id=b.id) }}" method="post" style="display:inline">
+          <button type="submit" class="btn btn-success btn-sm">✓ Pago</button>
+        </form>
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('boleto.editar', boleto_id=b.id) }}">Editar</a>
+        <form action="{{ url_for('boleto.excluir', boleto_id=b.id) }}" method="post" style="display:inline"
+              onsubmit="return confirm('Excluir este boleto?')">
+          <button type="submit" class="btn btn-danger btn-sm">✕</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Pagos -->
+{% if pagos %}
+<div class="sep">Pagos ({{ pagos|length }})</div>
+{% for b in pagos %}
+<div style="display:flex;align-items:center;gap:10px;padding:9px 14px;
+            background:var(--bg2);border:1px solid var(--border);
+            border-radius:var(--r);margin-bottom:6px;opacity:.5">
+  <span style="color:var(--green);font-size:16px">✓</span>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:500;color:var(--text1)">{{ b.nome }}</div>
+    {% if b.descricao %}<div style="font-size:11px;color:var(--text3)">{{ b.descricao }}</div>{% endif %}
+  </div>
+  <div style="font-family:var(--mono);font-weight:600;color:var(--green)">R$ {{ '%.2f'|format(b.valor) }}</div>
+  <div style="font-size:11.5px;color:var(--text3);font-family:var(--mono)">{{ b.vencimento.strftime('%d/%m/%Y') }}</div>
+  <form action="{{ url_for('boleto.reabrir', boleto_id=b.id) }}" method="post" style="display:inline">
+    <button type="submit" class="btn btn-ghost btn-sm">Reabrir</button>
+  </form>
+  <form action="{{ url_for('boleto.excluir', boleto_id=b.id) }}" method="post" style="display:inline"
+        onsubmit="return confirm('Excluir?')">
+    <button type="submit" class="btn btn-danger btn-sm">✕</button>
+  </form>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}
