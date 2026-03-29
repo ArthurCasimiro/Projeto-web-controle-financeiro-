@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, session
-from dao.assinatura_dao import AssinaturaDao
-from dao.boleto_dao import BoletoDao
+from DAO.assinatura_dao import AssinaturaDao
+from DAO.boleto_dao import BoletoDao
 from datetime import date
 
 assinatura_dao = AssinaturaDao()
@@ -20,7 +20,6 @@ def listar():
     today = date.today()
     today_day = today.day
 
-    # Assinaturas vencendo em 7 dias
     assinaturas = assinatura_dao.listar_por_usuario(uid)
     alertas = []
     for s in assinaturas:
@@ -32,7 +31,6 @@ def listar():
         if dias <= 7:
             alertas.append({'tipo': 'assinatura', 'obj': s, 'dias': dias})
 
-    # Boletos vencendo em 7 dias
     for b in boleto_dao.listar_urgentes(uid):
         dias = (b.vencimento - today).days
         alertas.append({'tipo': 'boleto', 'obj': b, 'dias': dias})

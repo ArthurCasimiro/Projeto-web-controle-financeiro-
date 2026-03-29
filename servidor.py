@@ -18,7 +18,7 @@ app.register_blueprint(boleto_bp)
 
 @app.route('/')
 def home_page():
-    return render_template('cadastrar.html')
+    return render_template('login.html')
 
 if __name__ == "__main__":
     with app.app_context():

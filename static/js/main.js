@@ -1,10 +1,4 @@
-/* =============================================
-   FinTrack — main.js
-   Interações frontend: confirmações, clipboard,
-   sidebar ativa, Chart.js, presets de data
-   ============================================= */
 
-// ── SIDEBAR: marcar item ativo com base na URL ──
 document.addEventListener('DOMContentLoaded', function () {
   var path = window.location.pathname;
   document.querySelectorAll('.sb-item[data-page]').forEach(function (el) {
@@ -16,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // ── FLASH: auto-esconder após 4s ──
+  
   document.querySelectorAll('.flash').forEach(function (el) {
     setTimeout(function () {
       el.style.transition = 'opacity .4s';
@@ -25,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 4000);
   });
 
-  // ── CONFIRMAÇÃO de exclusão ──
+  
   document.querySelectorAll('[data-confirm]').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
       if (!confirm(btn.getAttribute('data-confirm'))) {
@@ -34,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ── COPIAR código de barras ──
+ 
   document.querySelectorAll('.btn-copy-cod').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var cod = btn.getAttribute('data-cod');
@@ -47,14 +41,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ── PRESET de datas (Exportar por período) ──
   initPresets();
 
-  // ── CHARTS do dashboard ──
   initDashboardChart();
 });
 
-// ── PRESETS DE DATA ──
 function initPresets() {
   var presets = document.querySelectorAll('.pr-b[data-preset]');
   if (!presets.length) return;
@@ -113,7 +104,6 @@ function setLock(locked, dtI, dtF) {
   });
 }
 
-// ── CHART DO DASHBOARD ──
 function initDashboardChart() {
   var el = document.getElementById('chartDashboard');
   if (!el || typeof Chart === 'undefined') return;
@@ -169,7 +159,6 @@ function initDashboardChart() {
   });
 }
 
-// ── TOGGLE MARCAR/DESMARCAR checkbox visual ──
 function togCk(id) {
   var b = document.getElementById('ck-' + id);
   if (!b) return;

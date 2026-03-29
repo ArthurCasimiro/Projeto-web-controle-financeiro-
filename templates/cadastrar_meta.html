@@ -40,7 +40,6 @@
                required>
       </div>
 
-      <!-- Paleta de cores -->
       <div class="field">
         <label class="label">Cor de destaque</label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="cor-grid">
@@ -60,7 +59,6 @@
                value="{{ meta.cor if meta else '#2dd4bf' }}">
       </div>
 
-      <!-- Preview da barra -->
       <div class="field">
         <label class="label">Prévia</label>
         <div class="prog" style="margin:8px 0">
@@ -94,7 +92,6 @@ function selCor(c) {
   if (bar) { bar.style.background = c; bar.style.boxShadow = '0 0 8px ' + c + '40'; }
 }
 
-// Atualiza preview ao mudar valores
 ['valor_alvo','valor_atual'].forEach(function(id){
   var el = document.querySelector('[name="'+id+'"]');
   if (!el) return;

@@ -8,8 +8,9 @@ class Assinatura(db.Model):
     ciclo = db.Column(db.String(20), nullable=True)
     dia_vencimento = db.Column(db.Integer, nullable=True)
     status = db.Column(db.String(20), nullable=False, default='ativa')
-    data_inicio = db.Column(db.Date, nullable=False)
+    desde = db.Column(db.Date, nullable=True)
     data_fim = db.Column(db.Date, nullable=True)
+    notas = db.Column(db.String(255), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
 

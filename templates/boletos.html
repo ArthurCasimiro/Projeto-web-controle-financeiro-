@@ -7,7 +7,6 @@
   <div class="pg-sub">Gerencie boletos com alertas automáticos de vencimento</div>
 </div>
 
-<!-- STATS -->
 <div class="stats">
   <div class="stat red d1">
     <div class="stat-glow"></div>
@@ -34,7 +33,6 @@
   </div>
 </div>
 
-<!-- Banner vencidos -->
 {% if vencidos %}
 <div class="venc-ban">
   <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:10px">
@@ -60,7 +58,6 @@
   <a class="btn btn-amber" href="{{ url_for('boleto.cadastrar') }}">+ Novo boleto</a>
 </div>
 
-<!-- Boletos pendentes não vencidos -->
 {% for b in pendentes %}
 {% set d = (b.vencimento - today).days %}
 {% if d < 0 %}{% set cor = 'var(--red)' %}{% set lb = 'Vencido' %}
@@ -124,7 +121,6 @@
 </div>
 {% endfor %}
 
-<!-- Pagos -->
 {% if pagos %}
 <div class="sep">Pagos ({{ pagos|length }})</div>
 {% for b in pagos %}

@@ -7,7 +7,6 @@
   <div class="pg-sub">Baixe seus dados em CSV — compatível com Excel e Google Sheets</div>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <button class="tab-btn {% if tab == 'all' %}on{% endif %}"
           onclick="swTab('all', this)">↓ &nbsp;Exportar tudo</button>
@@ -15,7 +14,6 @@
           onclick="swTab('periodo', this)">📅 &nbsp;Exportar por período</button>
 </div>
 
-<!-- ── ABA: EXPORTAR TUDO ── -->
 <div id="tab-all" {% if tab != 'all' %}style="display:none"{% endif %}>
   <div class="info-ban">
     Marque os módulos desejados e escolha entre arquivos separados ou um único relatório consolidado.
@@ -68,7 +66,6 @@
   </form>
 </div>
 
-<!-- ── ABA: POR PERÍODO ── -->
 <div id="tab-periodo" {% if tab != 'periodo' %}style="display:none"{% endif %}>
   <form action="{{ url_for('exportar.exportar_periodo') }}" method="post">
 
@@ -78,7 +75,6 @@
       </div>
       <div class="sec-body">
 
-        <!-- Atalhos rápidos -->
         <div style="font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">
           Atalhos rápidos
         </div>
@@ -91,7 +87,6 @@
           <button type="button" class="pr-b pr-custom" data-preset="custom">✏ Personalizado</button>
         </div>
 
-        <!-- Campos de data -->
         <div class="grid2" style="margin-bottom:16px">
           <div>
             <label class="label"
@@ -135,7 +130,6 @@
           </div>
         </div>
 
-        <!-- Módulos filtrados -->
         <div style="font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">
           Módulos com data (filtrados pelo período)
         </div>
