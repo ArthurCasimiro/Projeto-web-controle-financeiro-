@@ -41,9 +41,13 @@
         <div class="field">
           <label class="label">Ciclo *</label>
           <select class="sel" name="ciclo">
-            <option value="mensal" {{ 'selected' if not assinatura or assinatura.ciclo == 'mensal' }}>Mensal</option>
-            <option value="anual"  {{ 'selected' if assinatura and assinatura.ciclo == 'anual' }}>Anual</option>
-          </select>
+            <option value="mensal"     {{ 'selected' if not assinatura or assinatura.ciclo == 'mensal' }}>Mensal</option>
+            <option value="anual"      {{ 'selected' if assinatura and assinatura.ciclo == 'anual' }}>Anual</option>
+            <option value="semanal"    {{ 'selected' if assinatura and assinatura.ciclo == 'semanal' }}>Semanal</option>
+            <option value="bimestral"  {{ 'selected' if assinatura and assinatura.ciclo == 'bimestral' }}>Bimestral</option>
+            <option value="trimestral" {{ 'selected' if assinatura and assinatura.ciclo == 'trimestral' }}>Trimestral</option>
+            <option value="semestral"  {{ 'selected' if assinatura and assinatura.ciclo == 'semestral' }}>Semestral</option>
+</select>
         </div>
       </div>
 
