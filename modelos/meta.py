@@ -9,7 +9,7 @@ class Meta(db.Model):
     cor = db.Column(db.String(7), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=True)
 
-    fundos = db.relationship('Fundo', backref='meta', lazy=True)
+    fundos = db.relationship('Fundo', back_populates='meta', lazy=True)
 
     @property
     def valor_atual(self):

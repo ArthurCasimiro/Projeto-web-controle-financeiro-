@@ -10,6 +10,9 @@ class Fundo(db.Model):
     tipo = db.Column(db.String(50), nullable=True)
     notas = db.Column(db.String(255), nullable=True)
     meta_id = db.Column(db.Integer, db.ForeignKey('meta.id'), nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
+
+    meta = db.relationship('Meta', back_populates='fundos', lazy='select')
 
     def __repr__(self):
         return f'<Fundo {self.nome}>'

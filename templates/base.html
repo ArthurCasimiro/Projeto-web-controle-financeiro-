@@ -61,7 +61,7 @@
       <a class="sb-item {% if request.blueprint == 'boleto' %}on{% endif %}"
          data-page="boletos" href="{{ url_for('boleto.listar') }}">
         <span class="sb-item-icon">▣</span> Boletos
-        {% set qtd_boletos_urgentes = boletos_urgentes|default(0) %}
+        {% set qtd_boletos_urgentes = boletos_urgentes|default([])|length %}
         {% if qtd_boletos_urgentes > 0 %}
           <span class="sb-badge">{{ qtd_boletos_urgentes }}</span>
         {% endif %}
@@ -75,7 +75,7 @@
       <a class="sb-item {% if request.blueprint == 'alerta' %}on{% endif %}"
          data-page="alertas" href="{{ url_for('alerta.listar') }}">
         <span class="sb-item-icon">◌</span> Alertas
-        {% set qtd_alertas = total_alertas|default(0) %}
+        {% set qtd_alertas = qtd_alertas|default(0) %}
         {% if qtd_alertas > 0 %}
           <span class="sb-badge">{{ qtd_alertas }}</span>
         {% endif %}
@@ -85,6 +85,15 @@
          data-page="exportar" href="{{ url_for('exportar.index') }}">
         <span class="sb-item-icon">↓</span> Exportar dados
       </a>
+
+      {% if session.usuario_role == 'admin' %}
+      <div class="sb-sec" style="margin-top:8px;color:rgba(232,168,56,.6)">Administração</div>
+      <a class="sb-item {% if request.blueprint == 'admin' %}on{% endif %}"
+         data-page="admin" href="{{ url_for('admin.painel') }}">
+        <span class="sb-item-icon">⚙</span> Painel Admin
+      </a>
+      {% endif %}
+
     </div>
 
     <div class="sb-foot">
