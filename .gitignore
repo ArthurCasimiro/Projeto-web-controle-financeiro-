@@ -32,7 +32,3 @@ Thumbs.db
 dist/
 build/
 *.egg-info/
-
-
-requirements.txt
-procfile
