@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 APScheduler==3.11.2
 blinker==1.9.0
 click==8.3.1
@@ -32,3 +33,11 @@ tzlocal==5.3.1
 Werkzeug==3.1.7
 
 
+=======
+flask
+flask-sqlalchemy
+flask-login
+werkzeug
+python-dotenv
+gunicorn
+>>>>>>> ab23e59c744852b90795ef22600df8aa7a72afad
