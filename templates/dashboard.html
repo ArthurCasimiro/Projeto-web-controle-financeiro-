@@ -8,12 +8,6 @@
 </div>
 
 <div class="stats">
-  <div class="stat amber d1">
-    <div class="stat-glow"></div>
-    <div class="stat-label">Entradas este mês</div>
-    <div class="stat-val">R$ {{ '%.2f'|format(total_entradas) }}</div>
-    <div class="stat-note">{{ qtd_fundos }} registros</div>
-  </div>
   <div class="stat red d2">
     <div class="stat-glow"></div>
     <div class="stat-label">Boletos em aberto</div>
@@ -26,13 +20,17 @@
     <div class="stat-val">R$ {{ '%.2f'|format(total_assinaturas) }}</div>
     <div class="stat-note">{{ qtd_assinaturas_ativas }} ativas</div>
   </div>
-  <div class="stat {{ 'green' if saldo >= 0 else 'red' }} d4">
+  <div class="stat amber d1">
     <div class="stat-glow"></div>
-    <div class="stat-label">Saldo estimado</div>
-    <div class="stat-val" style="color:var(--{{ 'green' if saldo >= 0 else 'red' }})">
-      R$ {{ '%.2f'|format(saldo|abs) }}
-    </div>
-    <div class="stat-note">{{ 'Positivo ↑' if saldo >= 0 else 'Negativo ↓' }}</div>
+    <div class="stat-label">Gastos este mês</div>
+    <div class="stat-val">R$ {{ '%.2f'|format(total_gastos_mes) }}</div>
+    <div class="stat-note">Total do mês atual</div>
+  </div>
+  <div class="stat teal d4">
+    <div class="stat-glow"></div>
+    <div class="stat-label">Total de saídas</div>
+    <div class="stat-val">R$ {{ '%.2f'|format(total_mensal) }}</div>
+    <div class="stat-note">Assinaturas + Gastos</div>
   </div>
 </div>
 
@@ -151,22 +149,28 @@
     <div class="sec-hd">
       <div class="sec-title">
         <span class="sec-title-dot" style="background:var(--green)"></span>
-        Últimas entradas
+        Últimos gastos
       </div>
-      <a class="sec-link" href="{{ url_for('fundo.listar') }}">Ver todas →</a>
+      <a class="sec-link" href="{{ url_for('gasto.listar') }}">Ver todos →</a>
     </div>
     <div class="sec-body" style="padding:0">
       <table class="tbl">
-        <thead><tr><th>Descrição</th><th>Tipo</th><th style="text-align:right">Valor</th></tr></thead>
+        <thead><tr><th>Descrição</th><th>Categoria</th><th style="text-align:right">Valor</th></tr></thead>
         <tbody>
-          {% for f in fundos_recentes %}
+          {% for g in gastos_recentes %}
           <tr>
-            <td style="font-weight:500;color:var(--text0)">{{ f.descricao }}</td>
-            <td><span class="tipo-pill" style="background:var(--tealbg);color:var(--teal)">{{ f.tipo }}</span></td>
-            <td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--green)">+R$ {{ '%.2f'|format(f.valor) }}</td>
+            <td style="font-weight:500;color:var(--text0)">{{ g.descricao or '—' }}</td>
+            <td>
+              {% if g.categoria %}
+                <span class="tipo-pill" style="background:var(--tealbg);color:var(--teal)">{{ g.categoria.nome }}</span>
+              {% else %}
+                <span style="color:var(--text3)">—</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right;font-family:var(--mono);font-weight:600;color:var(--red)">-R$ {{ '%.2f'|format(g.valor) }}</td>
           </tr>
           {% else %}
-          <tr><td colspan="3" style="text-align:center;color:var(--text3);padding:20px">Nenhuma entrada registrada.</td></tr>
+          <tr><td colspan="3" style="text-align:center;color:var(--text3);padding:20px">Nenhum gasto registrado.</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -2,10 +2,8 @@ from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import current_user
 from DAO.assinatura_dao import listar_assinaturas
 from DAO.gasto_dao import listar_gastos, total_mes_atual
-from DAO.meta_dao import listar_metas
 from DAO.categoria_dao import listar_categorias
 from DAO.boleto_dao import listar_boletos
-from DAO.fundo_dao import listar_fundos, total_geral
 from utils.decorators import login_required
 from datetime import date
 import calendar
@@ -36,20 +34,15 @@ def painel():
 
         assinaturas = listar_assinaturas(uid)
         gastos      = listar_gastos(uid)
-        metas       = listar_metas(uid)
         categorias  = listar_categorias(uid)
         boletos     = listar_boletos(uid)
-        fundos      = listar_fundos(uid)
 
         total_assinaturas      = sum(a.valor_mensal() for a in assinaturas if a.status == 'ativa')
         total_gastos_mes       = total_mes_atual(uid)
         total_mensal           = total_assinaturas + total_gastos_mes
-        total_entradas         = total_geral(uid)
         total_boletos_val      = sum(b.valor for b in boletos if b.status == 'pendente')
-        qtd_fundos             = len(fundos)
         qtd_boletos_pendentes  = len([b for b in boletos if b.status == 'pendente'])
         qtd_assinaturas_ativas = len([a for a in assinaturas if a.status == 'ativa'])
-        saldo                  = total_entradas - total_mensal
 
         alertas = []
         for b in boletos:
@@ -70,7 +63,6 @@ def painel():
             key=lambda b: b.vencimento
         )
 
-        fundos_recentes = fundos[:5]
         gastos_recentes = sorted(gastos, key=lambda g: g.data, reverse=True)[:5]
 
         gasto_categoria = {}
@@ -95,21 +87,16 @@ def painel():
         return render_template('dashboard.html',
             assinaturas=assinaturas,
             gastos_recentes=gastos_recentes,
-            metas=metas,
             alertas=alertas,
             boletos_urgentes=boletos_urgentes,
-            fundos_recentes=fundos_recentes,
             today=hoje,
             total_mensal=total_mensal,
             total_assinaturas=total_assinaturas,
             total_gastos_mes=total_gastos_mes,
-            total_entradas=total_entradas,
             total_boletos=total_boletos_val,
-            qtd_fundos=qtd_fundos,
             qtd_boletos_pendentes=qtd_boletos_pendentes,
             qtd_boletos_urgentes=len(boletos_urgentes),
             qtd_assinaturas_ativas=qtd_assinaturas_ativas,
-            saldo=saldo,
             gasto_categoria=gasto_categoria,
             chart_labels=chart_labels,
             chart_values=chart_values,

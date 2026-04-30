@@ -53,11 +53,6 @@
 
       <div class="sb-sec">Planejamento</div>
 
-      <a class="sb-item {% if request.blueprint == 'fundo' %}on{% endif %}"
-         data-page="fundos" href="{{ url_for('fundo.listar') }}">
-        <span class="sb-item-icon">⊕</span> Fundos
-      </a>
-
       <a class="sb-item {% if request.blueprint == 'boleto' %}on{% endif %}"
          data-page="boletos" href="{{ url_for('boleto.listar') }}">
         <span class="sb-item-icon">▣</span> Boletos
@@ -67,11 +62,6 @@
         {% endif %}
       </a>
 
-      <a class="sb-item {% if request.blueprint == 'meta' %}on{% endif %}"
-         data-page="metas" href="{{ url_for('meta.listar') }}">
-        <span class="sb-item-icon">◎</span> Metas
-      </a>
-
       <a class="sb-item {% if request.blueprint == 'alerta' %}on{% endif %}"
          data-page="alertas" href="{{ url_for('alerta.listar') }}">
         <span class="sb-item-icon">◌</span> Alertas
@@ -79,11 +69,6 @@
         {% if qtd_alertas > 0 %}
           <span class="sb-badge">{{ qtd_alertas }}</span>
         {% endif %}
-      </a>
-
-      <a class="sb-item {% if request.blueprint == 'exportar' %}on{% endif %}"
-         data-page="exportar" href="{{ url_for('exportar.index') }}">
-        <span class="sb-item-icon">↓</span> Exportar dados
       </a>
 
       {% if session.usuario_role == 'admin' %}

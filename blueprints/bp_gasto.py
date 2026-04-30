@@ -42,9 +42,13 @@ def cadastrar():
                                    gasto=None, categorias=categorias,
                                    today=date.today().isoformat())
 
+        recorrente = request.form.get('recorrente') == 'on'
+
         gasto_dao.criar_gasto(
+            descricao=descricao,
             valor=float(valor),
             data=datetime.strptime(data_str, '%Y-%m-%d').date(),
+            recorrente=recorrente,
             categoria_id=int(categoria_id) if categoria_id else None,
             usuario_id=current_user.id,
         )

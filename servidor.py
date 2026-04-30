@@ -23,10 +23,7 @@ from blueprints.bp_alerta import bp_alerta
 from blueprints.bp_assinatura import bp_assinatura
 from blueprints.bp_categoria import bp_categoria
 from blueprints.bp_gasto import bp_gasto
-from blueprints.bp_fundo import bp_fundo
-from blueprints.bp_meta import bp_meta
 from blueprints.bp_admin import bp_admin
-from blueprints.bp_exportar import bp_exportar
 
 app.register_blueprint(bp_auth)
 app.register_blueprint(bp_dashboard)
@@ -35,10 +32,7 @@ app.register_blueprint(bp_alerta)
 app.register_blueprint(bp_assinatura)
 app.register_blueprint(bp_categoria)
 app.register_blueprint(bp_gasto)
-app.register_blueprint(bp_fundo)
-app.register_blueprint(bp_meta)
 app.register_blueprint(bp_admin)
-app.register_blueprint(bp_exportar)
 
 
 @app.context_processor

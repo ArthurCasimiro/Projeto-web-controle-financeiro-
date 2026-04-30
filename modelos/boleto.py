@@ -11,7 +11,6 @@ class Boleto(db.Model):
     notas = db.Column(db.String(255), nullable=True)
     status = db.Column(db.String(20), nullable=False, default='pendente')
     categoria_id = db.Column(db.Integer, db.ForeignKey('categoria.id'), nullable=True)
-    fundo_id = db.Column(db.Integer, db.ForeignKey('fundo.id'), nullable=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuario.id'), nullable=False)
 
     categoria = db.relationship('Categoria', lazy='select', foreign_keys=[categoria_id])
