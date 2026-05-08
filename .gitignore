@@ -2,6 +2,7 @@
 .env
 .node_modules/
 .node_modules
+node_modules/
 # Ambiente virtual Python
 .venv/
 venv/
