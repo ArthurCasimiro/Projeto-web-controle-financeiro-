@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import current_user
-from DAO.assinatura_dao import (
+from repository.assinatura_repository import (
     listar_assinaturas, criar_assinatura, buscar_por_id,
     atualizar_assinatura, alterar_status_assinatura, deletar_assinatura
 )
-from DAO.categoria_dao import listar_categorias
+from repository.categoria_repository import listar_categorias
 from utils.decorators import login_required
 from datetime import date
 from extensao import db

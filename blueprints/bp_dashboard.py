@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import current_user
-from DAO.assinatura_dao import listar_assinaturas
-from DAO.gasto_dao import listar_gastos, total_mes_atual
-from DAO.categoria_dao import listar_categorias
-from DAO.boleto_dao import listar_boletos
+from repository.assinatura_repository import listar_assinaturas
+from repository.gasto_repository import listar_gastos, total_mes_atual
+from repository.categoria_repository import listar_categorias
+from repository.boleto_repository import listar_boletos
 from utils.decorators import login_required
 from datetime import date
 import calendar

@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, flash, redirect, url_for
 from flask_login import current_user
 from utils.decorators import login_required
-import DAO.assinatura_dao as assinatura_dao
-import DAO.boleto_dao as boleto_dao
+import repository.assinatura_repository as assinatura_repository
+import repository.boleto_repository as boleto_repository
 from blueprints.bp_dashboard import proximo_vencimento
 from datetime import date
 
@@ -16,7 +16,7 @@ def listar():
         uid   = current_user.id
         today = date.today()
 
-        assinaturas = assinatura_dao.listar_assinaturas(uid)
+        assinaturas = assinatura_repository.listar_assinaturas(uid)
         alertas = []
         for s in assinaturas:
             if s.status != 'ativa':
@@ -26,13 +26,13 @@ def listar():
             if dias <= 7:
                 alertas.append({'tipo': 'assinatura', 'obj': s, 'dias': dias})
 
-        for b in boleto_dao.listar_urgentes(uid):
+        for b in boleto_repository.listar_urgentes(uid):
             dias = (b.vencimento - today).days
             alertas.append({'tipo': 'boleto', 'obj': b, 'dias': dias})
 
         alertas.sort(key=lambda a: a['dias'])
-        boletos_vencidos = boleto_dao.listar_vencidos(uid)
-        todos_pendentes  = boleto_dao.listar_pendentes(uid)
+        boletos_vencidos = boleto_repository.listar_vencidos(uid)
+        todos_pendentes  = boleto_repository.listar_pendentes(uid)
 
         return render_template('alertas.html',
                                alertas=alertas,

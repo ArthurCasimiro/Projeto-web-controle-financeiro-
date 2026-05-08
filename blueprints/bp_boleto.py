@@ -2,8 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user
 from utils.decorators import login_required
 from modelos.boleto import Boleto
-import DAO.boleto_dao as boleto_dao
-import DAO.categoria_dao as categoria_dao
+import repository.boleto_repository as boleto_repository
+import repository.categoria_repository as categoria_repository
 from datetime import date, datetime
 
 bp_boleto = Blueprint('boleto', __name__, url_prefix='/boletos')
@@ -38,7 +38,7 @@ def listar():
 @login_required
 def cadastrar():
     try:
-        categorias = categoria_dao.listar_categorias(current_user.id)
+        categorias = categoria_repository.listar_categorias(current_user.id)
         if request.method == 'GET':
             return render_template('cadastrar_boleto.html',
                                    boleto=None, categorias=categorias,
@@ -58,7 +58,7 @@ def cadastrar():
                                    boleto=None, categorias=categorias,
                                    today=date.today().isoformat())
 
-        boleto_dao.criar_boleto(
+        boleto_repository.criar_boleto(
             nome=nome, valor=float(valor),
             vencimento=datetime.strptime(vencimento, '%Y-%m-%d').date(),
             usuario_id=current_user.id,
@@ -77,12 +77,12 @@ def cadastrar():
 @login_required
 def editar(boleto_id):
     try:
-        b = boleto_dao.buscar_por_id(boleto_id)
+        b = boleto_repository.buscar_por_id(boleto_id)
         if not b or b.usuario_id != current_user.id:
             flash('Boleto não encontrado.', 'erro')
             return redirect(url_for('boleto.listar'))
 
-        categorias = categoria_dao.listar_categorias(current_user.id)
+        categorias = categoria_repository.listar_categorias(current_user.id)
         if request.method == 'GET':
             return render_template('cadastrar_boleto.html',
                                    boleto=b, categorias=categorias,
@@ -102,7 +102,7 @@ def editar(boleto_id):
                                    boleto=b, categorias=categorias,
                                    today=date.today().isoformat())
 
-        boleto_dao.atualizar_boleto(
+        boleto_repository.atualizar_boleto(
             boleto_id=boleto_id, nome=nome, valor=float(valor),
             vencimento=datetime.strptime(vencimento, '%Y-%m-%d').date(),
             categoria_id=int(categoria_id) if categoria_id else None,
@@ -120,11 +120,11 @@ def editar(boleto_id):
 @login_required
 def pagar(boleto_id):
     try:
-        b = boleto_dao.buscar_por_id(boleto_id)
+        b = boleto_repository.buscar_por_id(boleto_id)
         if not b or b.usuario_id != current_user.id:
             flash('Boleto não encontrado.', 'erro')
             return redirect(url_for('boleto.listar'))
-        boleto_dao.marcar_como_pago(boleto_id)
+        boleto_repository.marcar_como_pago(boleto_id)
         flash('Boleto marcado como pago!', 'ok')
     except Exception as e:
         print(f'[ERRO] boleto.pagar: {e}')
@@ -136,11 +136,11 @@ def pagar(boleto_id):
 @login_required
 def reabrir(boleto_id):
     try:
-        b = boleto_dao.buscar_por_id(boleto_id)
+        b = boleto_repository.buscar_por_id(boleto_id)
         if not b or b.usuario_id != current_user.id:
             flash('Boleto não encontrado.', 'erro')
             return redirect(url_for('boleto.listar'))
-        boleto_dao.reabrir(boleto_id)
+        boleto_repository.reabrir(boleto_id)
         flash('Boleto reaberto.', 'ok')
     except Exception as e:
         print(f'[ERRO] boleto.reabrir: {e}')
@@ -152,11 +152,11 @@ def reabrir(boleto_id):
 @login_required
 def excluir(boleto_id):
     try:
-        b = boleto_dao.buscar_por_id(boleto_id)
+        b = boleto_repository.buscar_por_id(boleto_id)
         if not b or b.usuario_id != current_user.id:
             flash('Boleto não encontrado.', 'erro')
             return redirect(url_for('boleto.listar'))
-        boleto_dao.deletar_boleto(boleto_id)
+        boleto_repository.deletar_boleto(boleto_id)
         flash('Boleto excluído.', 'ok')
     except Exception as e:
         print(f'[ERRO] boleto.excluir: {e}')

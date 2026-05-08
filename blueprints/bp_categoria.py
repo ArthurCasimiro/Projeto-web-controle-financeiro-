@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user
 from utils.decorators import login_required
-import DAO.categoria_dao as categoria_dao
+import repository.categoria_repository as categoria_repository
 
 bp_categoria = Blueprint('categoria', __name__, url_prefix='/categorias')
 
@@ -10,7 +10,7 @@ bp_categoria = Blueprint('categoria', __name__, url_prefix='/categorias')
 @login_required
 def listar():
     try:
-        categorias = categoria_dao.listar_categorias(current_user.id)
+        categorias = categoria_repository.listar_categorias(current_user.id)
         return render_template('categorias.html', categorias=categorias)
     except Exception as e:
         print(f'[ERRO] categoria.listar: {e}')
@@ -32,7 +32,7 @@ def cadastrar():
             flash('Nome é obrigatório.', 'erro')
             return render_template('cadastrar_categoria.html', categoria=None)
 
-        categoria_dao.criar_categoria(nome, current_user.id, icone, cor)
+        categoria_repository.criar_categoria(nome, current_user.id, icone, cor)
         flash('Categoria criada!', 'ok')
         return redirect(url_for('categoria.listar'))
     except Exception as e:
@@ -45,7 +45,7 @@ def cadastrar():
 @login_required
 def editar(categoria_id):
     try:
-        categoria = categoria_dao.buscar_por_id(categoria_id)
+        categoria = categoria_repository.buscar_por_id(categoria_id)
         if not categoria or categoria.usuario_id != current_user.id:
             flash('Categoria não encontrada.', 'erro')
             return redirect(url_for('categoria.listar'))
@@ -61,7 +61,7 @@ def editar(categoria_id):
             flash('Nome é obrigatório.', 'erro')
             return render_template('cadastrar_categoria.html', categoria=categoria)
 
-        categoria_dao.atualizar_categoria(categoria_id, nome, icone, cor)
+        categoria_repository.atualizar_categoria(categoria_id, nome, icone, cor)
         flash('Categoria atualizada!', 'ok')
         return redirect(url_for('categoria.listar'))
     except Exception as e:
@@ -74,11 +74,11 @@ def editar(categoria_id):
 @login_required
 def excluir(categoria_id):
     try:
-        categoria = categoria_dao.buscar_por_id(categoria_id)
+        categoria = categoria_repository.buscar_por_id(categoria_id)
         if not categoria or categoria.usuario_id != current_user.id:
             flash('Categoria não encontrada.', 'erro')
             return redirect(url_for('categoria.listar'))
-        categoria_dao.deletar_categoria(categoria_id)
+        categoria_repository.deletar_categoria(categoria_id)
         flash('Categoria excluída.', 'ok')
     except Exception as e:
         print(f'[ERRO] categoria.excluir: {e}')

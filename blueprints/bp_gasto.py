@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user
 from utils.decorators import login_required
-import DAO.gasto_dao as gasto_dao
-import DAO.categoria_dao as categoria_dao
+import repository.gasto_repository as gasto_repository
+import repository.categoria_repository as categoria_repository
 from datetime import date, datetime
 
 bp_gasto = Blueprint('gasto', __name__, url_prefix='/gastos')
@@ -12,8 +12,8 @@ bp_gasto = Blueprint('gasto', __name__, url_prefix='/gastos')
 @login_required
 def listar():
     try:
-        gastos = gasto_dao.listar_gastos(current_user.id)
-        total_mes = gasto_dao.total_mes_atual(current_user.id)
+        gastos = gasto_repository.listar_gastos(current_user.id)
+        total_mes = gasto_repository.total_mes_atual(current_user.id)
         return render_template('gastos.html', gastos=gastos, total_mes=total_mes)
     except Exception as e:
         print(f'[ERRO] gasto.listar: {e}')
@@ -25,7 +25,7 @@ def listar():
 @login_required
 def cadastrar():
     try:
-        categorias = categoria_dao.listar_categorias(current_user.id)
+        categorias = categoria_repository.listar_categorias(current_user.id)
         if request.method == 'GET':
             return render_template('cadastrar_gasto.html',
                                    gasto=None, categorias=categorias,
@@ -44,7 +44,7 @@ def cadastrar():
 
         recorrente = request.form.get('recorrente') == 'on'
 
-        gasto_dao.criar_gasto(
+        gasto_repository.criar_gasto(
             descricao=descricao,
             valor=float(valor),
             data=datetime.strptime(data_str, '%Y-%m-%d').date(),
@@ -64,12 +64,12 @@ def cadastrar():
 @login_required
 def editar(gasto_id):
     try:
-        g = gasto_dao.buscar_por_id(gasto_id)
+        g = gasto_repository.buscar_por_id(gasto_id)
         if not g or g.usuario_id != current_user.id:
             flash('Gasto não encontrado.', 'erro')
             return redirect(url_for('gasto.listar'))
 
-        categorias = categoria_dao.listar_categorias(current_user.id)
+        categorias = categoria_repository.listar_categorias(current_user.id)
         if request.method == 'GET':
             return render_template('cadastrar_gasto.html',
                                    gasto=g, categorias=categorias,
@@ -85,7 +85,7 @@ def editar(gasto_id):
                                    gasto=g, categorias=categorias,
                                    today=date.today().isoformat())
 
-        gasto_dao.atualizar_gasto(
+        gasto_repository.atualizar_gasto(
             gasto_id=gasto_id,
             valor=float(valor),
             data=datetime.strptime(data_str, '%Y-%m-%d').date(),
@@ -103,11 +103,11 @@ def editar(gasto_id):
 @login_required
 def excluir(gasto_id):
     try:
-        g = gasto_dao.buscar_por_id(gasto_id)
+        g = gasto_repository.buscar_por_id(gasto_id)
         if not g or g.usuario_id != current_user.id:
             flash('Gasto não encontrado.', 'erro')
             return redirect(url_for('gasto.listar'))
-        gasto_dao.deletar_gasto(gasto_id)
+        gasto_repository.deletar_gasto(gasto_id)
         flash('Gasto excluído.', 'ok')
     except Exception as e:
         print(f'[ERRO] gasto.excluir: {e}')

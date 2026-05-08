@@ -1,7 +1,7 @@
 from flask import Blueprint, request, render_template, redirect, url_for, session, flash
 from flask_login import login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from DAO import usuario_dao
+from repository import usuario_repository
 
 bp_auth = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -11,7 +11,7 @@ def fazer_login():
     try:
         email = request.form.get('email')
         senha = request.form.get('senha')
-        usuario = usuario_dao.buscar_por_email(email)
+        usuario = usuario_repository.buscar_por_email(email)
         if usuario and check_password_hash(usuario.senha, senha):
             login_user(usuario)
             session['usuario_nome'] = usuario.nome
@@ -41,12 +41,12 @@ def cadastrar():
         if len(senha) < 6:
             flash('A senha deve ter pelo menos 6 caracteres.', 'erro')
             return render_template('cadastrar.html')
-        if usuario_dao.buscar_por_email(email):
+        if usuario_repository.buscar_por_email(email):
             flash('Este e-mail já está cadastrado.', 'erro')
             return render_template('cadastrar.html')
 
         senha_hash = generate_password_hash(senha)
-        usuario = usuario_dao.criar_usuario(nome, email, senha_hash)
+        usuario = usuario_repository.criar_usuario(nome, email, senha_hash)
         if usuario:
             login_user(usuario)
             session['usuario_nome'] = usuario.nome
